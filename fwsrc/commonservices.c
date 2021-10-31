@@ -18,6 +18,7 @@
 #include "flash_rewriter.h"
 #include "mdns.h"
 #include "spi_memory_addrs.h"
+#include "esp82xx/toolchain/esp_nonos_sdk/driver_lib/include/driver/gpio16.h"
 
 #define buffprint(M, ...) buffend += ets_sprintf( buffend, M, ##__VA_ARGS__)
 
@@ -270,11 +271,37 @@ CMD_RET_TYPE cmd_Browse(char * buffer, char *pusrdata, unsigned short len, char 
 #endif
 } // END: cmd_Browse(...)
 
+bool allow_cmd_gpio16_read = false;
+
+CMD_RET_TYPE handle_cmd_GPIO16(char * buffer, char *pusrdata, char * buffend)
+{
+    const int pin_number = 16;
+
+    switch( pusrdata[1] ) {
+        // this is the only supported operation for now.
+        // GPIO16 is extremely weird.
+        case 'g': case 'G': {
+            uint8_t gpio16_input_value = !gpio16_input_get();
+            buffprint("GG%d\t%d\n", pin_number, gpio16_input_value);
+        } break;
+    }
+
+    return buffend - buffer;
+}
 
 CMD_RET_TYPE cmd_GPIO(char * buffer, char *pusrdata, char * buffend)
 {
-
 	int nr = ParamCaptureAndAdvanceInt();
+
+    if (nr < 0 || nr > 16) {
+        printf("GPIO cmd error [pin# out of range]\r\n");
+        return buffend - buffer;
+    }
+
+    if (nr == 16 && allow_cmd_gpio16_read) {
+        return handle_cmd_GPIO16(buffer, pusrdata, buffend); // super-special case for pin 16 vs any others
+    }
+
 	if( MakePinGPIO( nr ) )
 	{
 		buffprint( "!G%c%d\n", pusrdata[1], nr );
