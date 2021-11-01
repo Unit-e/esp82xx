@@ -87,5 +87,7 @@ void ICACHE_FLASH_ATTR SetServiceName( const char * myservice );
 
 char * ICACHE_FLASH_ATTR strcat( char * dest, char * src );
 
+void PrintWifiInfo();
+
 #endif
 

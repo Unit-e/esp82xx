@@ -902,6 +902,33 @@ static void ICACHE_FLASH_ATTR RestoreAndReboot( )
 	GPIO0Down = 0;
 }
 
+#define chop_ip(x) (((x)>>0)&0xff), (((x)>>8)&0xff), (((x)>>16)&0xff), (((x)>>24)&0xff)
+
+void _PrintWifiStationModeInfo(const struct station_config* wcfg, const struct ip_info* ipi, int stat)
+{
+    if (stat > 0)
+        os_printf( "STAT: %d\n", stat );
+
+    if (ipi) {
+        os_printf("IP: %d.%d.%d.%d\n", chop_ip(ipi->ip.addr));
+        os_printf("NM: %d.%d.%d.%d\n", chop_ip(ipi->netmask.addr));
+        os_printf("GW: %d.%d.%d.%d\n", chop_ip(ipi->gw.addr));
+    }
+
+    if (wcfg)
+        os_printf( "WCFG: /%s/\n"  , wcfg->ssid  );
+}
+
+void PrintWifiStationModeInfo()
+{
+    os_printf("Wifi info (if in station [non-AP] mode)");
+    struct station_config wcfg;
+    struct ip_info ipi;
+    wifi_station_get_config( &wcfg );
+    wifi_get_ip_info(0, &ipi);
+    _PrintWifiStationModeInfo(&wcfg, &ipi, -1);
+}
+
 static void ICACHE_FLASH_ATTR SlowTick( int opm )
 {
 	if( (PIN_IN & _BV(0)) == 0 )
@@ -963,12 +990,7 @@ static void ICACHE_FLASH_ATTR SlowTick( int opm )
 		} else if( stat == STATION_GOT_IP && !printed_ip ) {
 			wifi_station_get_config( &wcfg );
 			wifi_get_ip_info(0, &ipi);
-			os_printf( "STAT: %d\n", stat );
-			#define chop_ip(x) (((x)>>0)&0xff), (((x)>>8)&0xff), (((x)>>16)&0xff), (((x)>>24)&0xff)
-			os_printf( "IP: %d.%d.%d.%d\n", chop_ip(ipi.ip.addr)      );
-			os_printf( "NM: %d.%d.%d.%d\n", chop_ip(ipi.netmask.addr) );
-			os_printf( "GW: %d.%d.%d.%d\n", chop_ip(ipi.gw.addr)      );
-			os_printf( "WCFG: /%s/\n"  , wcfg.ssid  );
+            _PrintWifiStationModeInfo(&wcfg, &ipi, stat);
 			printed_ip = 1;
 			wifi_fail_connects = 0;
 			CSConnectionChange();
