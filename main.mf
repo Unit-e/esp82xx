@@ -212,10 +212,14 @@ build_dir : $(FW_FILE1) $(FW_FILE2) version.txt webmpfs
 zip_build : build_dir
 	zip -qr - ./build/ > $(BIN_TARGET)
 
+ifndef DEFAULT_FLASH_SIZE_GUESS
+DEFAULT_FLASH_SIZE_GUESS="16MB"
+endif
+
 wipechip :
 	@echo "beginning process of wiping chip, takes a minute or two..."
 	@export x=`$(ESPTOOL_PY) --port $(PORT) flash_id | sed -Enr 's/^Detected flash size: (.*)/\1/p'`; \
-	dd if=/dev/zero of=/tmp/zeroes count=1 bs=$${x:-16MB}
+	dd if=/dev/zero of=/tmp/zeroes count=1 bs=$${x:-$(DEFAULT_FLASH_SIZE_GUESS)}
 	$(ESPTOOL_PY) $(FWBURNFLAGS) --port $(PORT) write_flash 0x0 /tmp/zeroes
 
 getips :
