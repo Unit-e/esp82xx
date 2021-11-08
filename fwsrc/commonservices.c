@@ -271,7 +271,16 @@ CMD_RET_TYPE cmd_Browse(char * buffer, char *pusrdata, unsigned short len, char 
 #endif
 } // END: cmd_Browse(...)
 
-bool allow_cmd_gpio16_read = false;
+static bool allow_cmd_gpio16_read = false;
+
+void enable_gpio16_as_input()
+{
+    gpio16_input_conf();
+
+    // for web ui to be able to display GPIO16 state.
+    // this is a little janky and doesn't update if gpio16 is ever set to non-input mode.
+    allow_cmd_gpio16_read = true;
+}
 
 CMD_RET_TYPE handle_cmd_GPIO16(char * buffer, char *pusrdata, char * buffend)
 {

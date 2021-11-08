@@ -47,9 +47,6 @@ struct __attribute__ ((aligned (32))) CommonSettings
 
 extern struct CommonSettings SETTINGS;
 
-extern bool allow_cmd_gpio16_read;
-
-
 //You must provide:
 //Critical should not lock interrupts, just disable services that have problems
 //with double-interrupt faults.  I.e. turn off/on any really fast timer interrupts.
