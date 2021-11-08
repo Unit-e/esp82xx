@@ -48,8 +48,11 @@ FW_FILE2 = image.elf-0x10000.bin
 TARGET = image.elf
 
 
+ifneq ($(DONT_INCLUDE_ESP82XX_UART_C), 1)
+	SRCS += esp82xx/fwsrc/uart.c
+endif
 
-SRCS +=  esp82xx/fwsrc/uart.c \
+SRCS += \
 	esp82xx/fwsrc/esp82xxutil.c \
 	esp82xx/fwsrc/flash_rewriter.c \
 	esp82xx/fwsrc/http.c \
