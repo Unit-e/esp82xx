@@ -1093,19 +1093,28 @@ void ICACHE_FLASH_ATTR CSSettingsLoad(int force_reinit)
 
 void ICACHE_FLASH_ATTR CSSettingsSave(bool criticalRequired)
 {
+    os_printf("CSSettingsSave()...");
+
 	if(criticalRequired)
 	{
 		EnterCritical();
 	}
 	SETTINGS.settings_key = SETTINGS_KEY;
+
 //	spi_flash_erase_sector( 0x3a );
 //	spi_flash_write( 0x3a*0x1000, (uint32*)&SETTINGS, sizeof( SETTINGS ) );
-	system_param_save_with_protect( SETTINGS_ADDR, &SETTINGS, sizeof( SETTINGS ) );
-	os_printf( "Saving\n" );
+
+    os_printf("do system_param_save_with_protect()..");
+	if (!system_param_save_with_protect( SETTINGS_ADDR, &SETTINGS, sizeof( SETTINGS ) ))
+    {
+        os_printf( "FAILED TO SAVE!\r\n" );
+    }
+
 	if(criticalRequired)
 	{
 		ExitCritical();
 	}
+    os_printf("done saving!\r\n");
 }
 
 
