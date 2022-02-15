@@ -63,7 +63,7 @@ SRCS += \
 	user/custom_commands.c \
 	user/user_main.c
 
-LIBS += main lwip ssl upgrade net80211 wpa phy lwip crypto c espnow
+LIBS += main lwip net80211 wpa phy crypto c espnow
 ifneq ($(CUSTOMPP), 1)
 	LIBS += pp
 endif
